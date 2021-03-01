@@ -1639,6 +1639,14 @@ class MoveNextPythonMethodStart extends PythonMovement {
 }
 
 @RegisterAction
+class MovePrevPythonMethodStart extends PythonMovement {
+  keys = ['[', 'm'];
+  forward = false;
+  start = true;
+  pattern = /^\s*def /;
+}
+
+@RegisterAction
 class MoveToMatchingBracket extends BaseMovement {
   keys = ['%'];
   isJump = true;
