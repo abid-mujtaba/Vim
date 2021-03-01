@@ -24,6 +24,10 @@ import { clamp } from '../util/util';
 import { getCurrentParagraphBeginning, getCurrentParagraphEnd } from '../textobject/paragraph';
 import { Position } from 'vscode';
 
+// TODO: Remove
+import { Logger } from '../util/logger';
+const logger = Logger.get('motion');
+
 /**
  * A movement is something like 'h', 'k', 'w', 'b', 'gg', etc.
  */
@@ -1578,6 +1582,60 @@ class MovePreviousSectionEnd extends MoveSectionBoundary {
   keys = ['[', ']'];
   boundary = '}';
   forward = false;
+}
+
+abstract class PythonMovement extends BaseMovement {
+  modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
+  abstract forward: boolean;
+  abstract start: boolean;
+  abstract pattern: RegExp;
+  isJump = true;
+
+  public async execAction(position: Position, vimState: VimState): Promise<Position> {
+    if (vimState.document.languageId !== 'python') {
+      return position;
+    }
+
+    // TODO: Remove
+    logger.warn(']m executed');
+
+    let line = position.line;
+
+    if (
+      (this.forward && line === vimState.document.lineCount - 1) ||
+      (!this.forward && line === 0)
+    ) {
+      return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+    }
+
+    line = this.forward ? line + 1 : line - 1;
+
+    while (!vimState.document.lineAt(line).text.match(this.pattern)) {
+      if (this.forward) {
+        if (line === vimState.document.lineCount - 1) {
+          return position;
+        }
+
+        line++;
+      } else {
+        if (line === 0) {
+          return position;
+        }
+
+        line--;
+      }
+    }
+
+    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+  }
+}
+
+@RegisterAction
+class MoveNextPythonMethodStart extends PythonMovement {
+  keys = [']', 'm'];
+  forward = true;
+  start = true;
+  pattern = /^\s*def /;
 }
 
 @RegisterAction
