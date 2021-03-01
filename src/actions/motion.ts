@@ -1525,6 +1525,10 @@ abstract class MoveSectionBoundary extends BaseMovement {
   isJump = true;
 
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
+    if (vimState.document.languageId === 'python') {
+      return this.execPythonAction(this.forward, this.boundary, position, vimState);
+    }
+
     let line = position.line;
 
     if (
@@ -1551,6 +1555,34 @@ abstract class MoveSectionBoundary extends BaseMovement {
         line--;
       }
     }
+
+    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+  }
+
+  private async execPythonAction(
+    forward: boolean,
+    boundary: string,
+    position: Position,
+    vimState: VimState
+  ) {
+    if (forward) {
+      return this.execPythonForwardAction(position, vimState);
+    } else {
+      return this.execPythonBackwardAction(position, vimState);
+    }
+  }
+
+  private async execPythonForwardAction(position: Position, vimState: VimState): Promise<Position> {
+    let line = position.line;
+
+    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+  }
+
+  private async execPythonBackwardAction(
+    position: Position,
+    vimState: VimState
+  ): Promise<Position> {
+    let line = position.line;
 
     return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
   }
