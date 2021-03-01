@@ -1573,18 +1573,24 @@ abstract class MoveSectionBoundary extends BaseMovement {
   }
 
   private async execPythonForwardAction(position: Position, vimState: VimState): Promise<Position> {
-    let line = position.line;
+    class MoveNextPythonClassStart extends PythonForwardMovement {
+      keys = [];
+      pattern = /^\s*class/;
+    }
 
-    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+    return new MoveNextPythonClassStart().execAction(position, vimState);
   }
 
   private async execPythonBackwardAction(
     position: Position,
     vimState: VimState
   ): Promise<Position> {
-    let line = position.line;
+    class MovePrevPythonClassStart extends PythonBackwardMovement {
+      keys = [];
+      pattern = /^\s*class/;
+    }
 
-    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+    return new MovePrevPythonClassStart().execAction(position, vimState);
   }
 }
 
@@ -1628,9 +1634,6 @@ abstract class PythonForwardMovement extends BasePythonMovement {
       return position;
     }
 
-    // TODO: Remove
-    logger.warn(']m executed');
-
     let line = position.line;
 
     do {
@@ -1650,9 +1653,6 @@ abstract class PythonBackwardMovement extends BasePythonMovement {
     if (vimState.document.languageId !== 'python') {
       return position;
     }
-
-    // TODO: Remove
-    logger.warn(']m executed');
 
     let line = position.line;
 
