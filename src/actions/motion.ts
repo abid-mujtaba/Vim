@@ -1584,13 +1584,13 @@ class MovePreviousSectionEnd extends MoveSectionBoundary {
   forward = false;
 }
 
-abstract class PythonMovement extends BaseMovement {
+abstract class BasePythonMovement extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
-  abstract forward: boolean;
-  abstract start: boolean;
   abstract pattern: RegExp;
   isJump = true;
+}
 
+abstract class PythonForwardMovement extends BasePythonMovement {
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
     if (vimState.document.languageId !== 'python') {
       return position;
@@ -1601,48 +1601,50 @@ abstract class PythonMovement extends BaseMovement {
 
     let line = position.line;
 
-    if (
-      (this.forward && line === vimState.document.lineCount - 1) ||
-      (!this.forward && line === 0)
-    ) {
-      return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
-    }
-
-    line = this.forward ? line + 1 : line - 1;
-
-    while (!vimState.document.lineAt(line).text.match(this.pattern)) {
-      if (this.forward) {
-        if (line === vimState.document.lineCount - 1) {
-          return position;
-        }
-
-        line++;
-      } else {
-        if (line === 0) {
-          return position;
-        }
-
-        line--;
+    do {
+      if (line === vimState.document.lineCount - 1) {
+        return position;
       }
+
+      line++;
+    } while (!vimState.document.lineAt(line).text.match(this.pattern));
+
+    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
+  }
+}
+
+abstract class PythonBackwardMovement extends BasePythonMovement {
+  public async execAction(position: Position, vimState: VimState): Promise<Position> {
+    if (vimState.document.languageId !== 'python') {
+      return position;
     }
+
+    // TODO: Remove
+    logger.warn(']m executed');
+
+    let line = position.line;
+
+    do {
+      if (line === 0) {
+        return position;
+      }
+
+      line--;
+    } while (!vimState.document.lineAt(line).text.match(this.pattern));
 
     return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
   }
 }
 
 @RegisterAction
-class MoveNextPythonMethodStart extends PythonMovement {
+class MoveNextPythonMethodStart extends PythonForwardMovement {
   keys = [']', 'm'];
-  forward = true;
-  start = true;
   pattern = /^\s*def /;
 }
 
 @RegisterAction
-class MovePrevPythonMethodStart extends PythonMovement {
+class MovePrevPythonMethodStart extends PythonBackwardMovement {
   keys = ['[', 'm'];
-  forward = false;
-  start = true;
   pattern = /^\s*def /;
 }
 
