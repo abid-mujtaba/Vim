@@ -65,7 +65,7 @@ class MovePrevPythonMethodStart extends PythonBackwardMovement {
 
 export async function execPythonSectionMotion(
   forward: boolean,
-  boundary: string,
+  start: boolean,
   position: Position,
   vimState: VimState
 ) {

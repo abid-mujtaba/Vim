@@ -1521,15 +1521,17 @@ class MoveParagraphBegin extends BaseMovement {
 
 abstract class MoveSectionBoundary extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
-  abstract boundary: string;
+  abstract start: boolean;
   abstract forward: boolean;
   isJump = true;
 
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    if (vimState.document.languageId === 'python') {
-      return execPythonSectionMotion(this.forward, this.boundary, position, vimState);
+    switch (vimState.document.languageId) {
+      case 'python':
+        return execPythonSectionMotion(this.forward, this.start, position, vimState);
     }
 
+    const boundary = this.start ? '{' : '}';
     let line = position.line;
 
     if (
@@ -1541,7 +1543,7 @@ abstract class MoveSectionBoundary extends BaseMovement {
 
     line = this.forward ? line + 1 : line - 1;
 
-    while (!vimState.document.lineAt(line).text.startsWith(this.boundary)) {
+    while (!vimState.document.lineAt(line).text.startsWith(boundary)) {
       if (this.forward) {
         if (line === vimState.document.lineCount - 1) {
           break;
@@ -1564,28 +1566,28 @@ abstract class MoveSectionBoundary extends BaseMovement {
 @RegisterAction
 class MoveNextSectionBegin extends MoveSectionBoundary {
   keys = [']', ']'];
-  boundary = '{';
+  start = true;
   forward = true;
 }
 
 @RegisterAction
 class MoveNextSectionEnd extends MoveSectionBoundary {
   keys = [']', '['];
-  boundary = '}';
+  start = false;
   forward = true;
 }
 
 @RegisterAction
 class MovePreviousSectionBegin extends MoveSectionBoundary {
   keys = ['[', '['];
-  boundary = '{';
+  start = true;
   forward = false;
 }
 
 @RegisterAction
 class MovePreviousSectionEnd extends MoveSectionBoundary {
   keys = ['[', ']'];
-  boundary = '}';
+  start = false;
   forward = false;
 }
 
