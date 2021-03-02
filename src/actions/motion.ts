@@ -22,6 +22,7 @@ import { SearchDirection } from '../state/searchState';
 import { StatusBar } from '../statusBar';
 import { clamp } from '../util/util';
 import { getCurrentParagraphBeginning, getCurrentParagraphEnd } from '../textobject/paragraph';
+import { PythonForwardMovement, PythonBackwardMovement } from './languages/python-motion';
 import { Position } from 'vscode';
 
 // TODO: Remove
@@ -1620,64 +1621,6 @@ class MovePreviousSectionEnd extends MoveSectionBoundary {
   keys = ['[', ']'];
   boundary = '}';
   forward = false;
-}
-
-abstract class BasePythonMovement extends BaseMovement {
-  modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
-  abstract pattern: RegExp;
-  isJump = true;
-}
-
-abstract class PythonForwardMovement extends BasePythonMovement {
-  public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    if (vimState.document.languageId !== 'python') {
-      return position;
-    }
-
-    let line = position.line;
-
-    do {
-      if (line === vimState.document.lineCount - 1) {
-        return position;
-      }
-
-      line++;
-    } while (!vimState.document.lineAt(line).text.match(this.pattern));
-
-    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
-  }
-}
-
-abstract class PythonBackwardMovement extends BasePythonMovement {
-  public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    if (vimState.document.languageId !== 'python') {
-      return position;
-    }
-
-    let line = position.line;
-
-    do {
-      if (line === 0) {
-        return position;
-      }
-
-      line--;
-    } while (!vimState.document.lineAt(line).text.match(this.pattern));
-
-    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
-  }
-}
-
-@RegisterAction
-class MoveNextPythonMethodStart extends PythonForwardMovement {
-  keys = [']', 'm'];
-  pattern = /^\s*def /;
-}
-
-@RegisterAction
-class MovePrevPythonMethodStart extends PythonBackwardMovement {
-  keys = ['[', 'm'];
-  pattern = /^\s*def /;
 }
 
 @RegisterAction
