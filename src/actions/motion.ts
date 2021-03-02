@@ -22,7 +22,7 @@ import { SearchDirection } from '../state/searchState';
 import { StatusBar } from '../statusBar';
 import { clamp } from '../util/util';
 import { getCurrentParagraphBeginning, getCurrentParagraphEnd } from '../textobject/paragraph';
-import { PythonForwardMovement, PythonBackwardMovement } from './languages/python-motion';
+import { execPythonSectionMotion } from './languages/python-motion';
 import { Position } from 'vscode';
 
 // TODO: Remove
@@ -1527,7 +1527,7 @@ abstract class MoveSectionBoundary extends BaseMovement {
 
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
     if (vimState.document.languageId === 'python') {
-      return this.execPythonAction(this.forward, this.boundary, position, vimState);
+      return execPythonSectionMotion(this.forward, this.boundary, position, vimState);
     }
 
     let line = position.line;
@@ -1558,40 +1558,6 @@ abstract class MoveSectionBoundary extends BaseMovement {
     }
 
     return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
-  }
-
-  private async execPythonAction(
-    forward: boolean,
-    boundary: string,
-    position: Position,
-    vimState: VimState
-  ) {
-    if (forward) {
-      return this.execPythonForwardAction(position, vimState);
-    } else {
-      return this.execPythonBackwardAction(position, vimState);
-    }
-  }
-
-  private async execPythonForwardAction(position: Position, vimState: VimState): Promise<Position> {
-    class MoveNextPythonClassStart extends PythonForwardMovement {
-      keys = [];
-      pattern = /^\s*class/;
-    }
-
-    return new MoveNextPythonClassStart().execAction(position, vimState);
-  }
-
-  private async execPythonBackwardAction(
-    position: Position,
-    vimState: VimState
-  ): Promise<Position> {
-    class MovePrevPythonClassStart extends PythonBackwardMovement {
-      keys = [];
-      pattern = /^\s*class/;
-    }
-
-    return new MovePrevPythonClassStart().execAction(position, vimState);
   }
 }
 

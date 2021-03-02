@@ -11,7 +11,7 @@ abstract class BasePythonMovement extends BaseMovement {
   isJump = true;
 }
 
-export abstract class PythonForwardMovement extends BasePythonMovement {
+abstract class PythonForwardMovement extends BasePythonMovement {
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
     if (vimState.document.languageId !== 'python') {
       return position;
@@ -31,7 +31,7 @@ export abstract class PythonForwardMovement extends BasePythonMovement {
   }
 }
 
-export abstract class PythonBackwardMovement extends BasePythonMovement {
+abstract class PythonBackwardMovement extends BasePythonMovement {
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
     if (vimState.document.languageId !== 'python') {
       return position;
@@ -61,4 +61,41 @@ class MoveNextPythonMethodStart extends PythonForwardMovement {
 class MovePrevPythonMethodStart extends PythonBackwardMovement {
   keys = ['[', 'm'];
   pattern = /^\s*def /;
+}
+
+export async function execPythonSectionMotion(
+  forward: boolean,
+  boundary: string,
+  position: Position,
+  vimState: VimState
+) {
+  if (forward) {
+    return execPythonSectionForwardAction(position, vimState);
+  } else {
+    return execPythonSectionBackwardAction(position, vimState);
+  }
+}
+
+async function execPythonSectionForwardAction(
+  position: Position,
+  vimState: VimState
+): Promise<Position> {
+  class MoveNextPythonClassStart extends PythonForwardMovement {
+    keys = [];
+    pattern = /^\s*class/;
+  }
+
+  return new MoveNextPythonClassStart().execAction(position, vimState);
+}
+
+async function execPythonSectionBackwardAction(
+  position: Position,
+  vimState: VimState
+): Promise<Position> {
+  class MovePrevPythonClassStart extends PythonBackwardMovement {
+    keys = [];
+    pattern = /^\s*class/;
+  }
+
+  return new MovePrevPythonClassStart().execAction(position, vimState);
 }
