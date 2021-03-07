@@ -5,6 +5,10 @@ import { VimState } from '../../state/vimState';
 import { BaseMovement } from '../baseMotion';
 import { Position } from 'vscode';
 
+// TODO: Remove
+import { Logger } from '../../util/logger';
+const logger = Logger.get('motion');
+
 abstract class BasePythonMovement extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
   abstract pattern: RegExp;
@@ -16,6 +20,9 @@ abstract class PythonForwardMovement extends BasePythonMovement {
     if (vimState.document.languageId !== 'python') {
       return position;
     }
+
+    // TODO: Remove
+    logger.warn(`Cursor is on line ${position.line} and characer ${position.character}`);
 
     let line = position.line;
 
