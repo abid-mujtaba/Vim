@@ -19,15 +19,15 @@ export class PythonDocument {
   _originalLine: number;
   _originalCharacter: number;
   _line: number;
+  _character: number;
   _last: number;
 
   constructor(document: TextDocument, position: Position) {
     this._document = document;
 
-    this._originalLine = position.line;
-    this._originalCharacter = position.character;
+    this._line = this._originalLine =  position.line;
+    this._character = this._originalCharacter = position.character;
 
-    this._line = this._originalLine;
     this._last = document.lineCount - 1;  // Position of last line in document
   }
 
@@ -53,8 +53,28 @@ export class PythonDocument {
     return false;
   }
 
+  _isAhead(): boolean {
+    if (this._line < this._originalLine)
+      return false;
+
+    if (this._line > this._originalLine)
+      return true;
+
+    return this._character > this._originalCharacter;
+  }
+
+  _isFunctionLine(): boolean {
+    return false;
+  }
+
   findNextFunctionStart(): Position | null {
-    return null;
+    while(! this._isFunctionLine() && this._isAhead()) {
+      if (! this.inc()) {
+        return null;
+      }
+    }
+
+    return TextEditor.getFirstNonWhitespaceCharOnLine(this._document, this._line);
   }
 }
 
