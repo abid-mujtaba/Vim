@@ -82,5 +82,46 @@ suite("test PythonDocument lint functionality", () => {
     assert(text_0 === _lines[1]);
     assert(text_1 === _lines[0]);
     assert(text_2 === _lines[0]);
-  })
+  });
+});
+
+
+suite("Test PythonDocument find functionality", () => {
+
+  let _lines: string[];
+  let doc: TextDocument;
+
+  setup(() => {
+    _lines = [
+      "'''Module docstring.'''",
+      "",
+      "def first(x, y):",
+      "# a mis-placed comment",
+      "    pass",
+      "",
+      "p = 42",
+      "",
+      "def second(a, b):",
+      "",
+      "    def inner():",
+      "        pass"
+    ];
+
+    doc = {lineCount: 12, lineAt: (line: number) => {
+      return {text: _lines[line]}}
+    } as TextDocument;
+  });
+
+  test("test findNextFunctionStart", () => {
+    // GIVEN
+    const position = {line: 0, character: 0} as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextFunctionStart();
+
+    // THEN
+    assert(new_position.line === 2);
+    assert(new_position.char === 0);
+  });
 });
