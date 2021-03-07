@@ -1,19 +1,17 @@
-import { Mode } from '../../mode/mode';
-import { RegisterAction } from '../base';
-import { TextEditor } from '../../textEditor';
-import { VimState } from '../../state/vimState';
-import { BaseMovement } from '../baseMotion';
+import { Mode } from '../../../mode/mode';
+import { RegisterAction } from '../../base';
+import { TextEditor } from '../../../textEditor';
+import { VimState } from '../../../state/vimState';
+import { BaseMovement } from '../../baseMotion';
 import { Position } from 'vscode';
 
 // TODO: Remove
-import { Logger } from '../../util/logger';
+import { Logger } from '../../../util/logger';
 const logger = Logger.get('motion');
 
-
-function foo(): String {
-  return "bar";
+export function foo(): String {
+  return 'bar';
 }
-
 
 abstract class BasePythonMovement extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
