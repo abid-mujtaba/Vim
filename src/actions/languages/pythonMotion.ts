@@ -9,6 +9,12 @@ import { Position } from 'vscode';
 import { Logger } from '../../util/logger';
 const logger = Logger.get('motion');
 
+
+function foo(): String {
+  return "bar";
+}
+
+
 abstract class BasePythonMovement extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
   abstract pattern: RegExp;
