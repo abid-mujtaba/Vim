@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { TextDocument } from 'vscode';
 import { PythonDocument } from '../../../../src/actions/languages/python/motion';
 
-suite("test PythonDocument", () => {
+suite("test PythonDocument lint functionality", () => {
   test("test constructor", () => {
     // GIVEN
     const line = 42;
@@ -14,19 +14,25 @@ suite("test PythonDocument", () => {
     // THEN: Object construction succeeds
   });
 
-  test("test line()", () => {
-    // GIVEN
-    const line = 1;
-    const _lines = [
+  let _lines: string[];
+  let doc: TextDocument;
+
+  setup(function() {
+    _lines = [
       "line 1",
       "line 2",
       "line 3"
     ];
     // Create the simplest duck-type that matches PythonDocument's use of
     // the passed in PythonDocument object
-    const doc = {lineCount: 3, lineAt: (line: number) => {
+    doc = {lineCount: 3, lineAt: (line: number) => {
       return {text: _lines[line]}}
     } as TextDocument;
+  });
+
+  test("test line()", () => {
+    // GIVEN
+    const line = 1;
     const pydoc = new PythonDocument(doc, line);
 
     // WHEN
@@ -39,16 +45,6 @@ suite("test PythonDocument", () => {
   test("test inc()", () => {
     // GIVEN
     const line = 1;
-    const _lines = [
-      "line 1",
-      "line 2",
-      "line 3"
-    ];
-    // Create the simplest duck-type that matches PythonDocument's use of
-    // the passed in PythonDocument object
-    const doc = {lineCount: 3, lineAt: (line: number) => {
-      return {text: _lines[line]}}
-    } as TextDocument;
     const pydoc = new PythonDocument(doc, line);
 
     // WHEN: Starting at 2nd-last line attempt two .inc()
@@ -70,16 +66,6 @@ suite("test PythonDocument", () => {
   test("test dec()", () => {
     // GIVEN
     const line = 1;
-    const _lines = [
-      "line 1",
-      "line 2",
-      "line 3"
-    ];
-    // Create the simplest duck-type that matches PythonDocument's use of
-    // the passed in PythonDocument object
-    const doc = {lineCount: 3, lineAt: (line: number) => {
-      return {text: _lines[line]}}
-    } as TextDocument;
     const pydoc = new PythonDocument(doc, line);
 
     // WHEN: Starting at 2nd-last line attempt two .inc()
