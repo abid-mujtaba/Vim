@@ -1,15 +1,15 @@
 import * as assert from 'assert';
-import { TextDocument } from 'vscode';
-import { PythonDocument } from '../../../../src/actions/languages/python/motion';
+import { Position, TextDocument } from 'vscode';
+import { execPythonSectionMotion, PythonDocument } from '../../../../src/actions/languages/python/motion';
 
 suite("test PythonDocument lint functionality", () => {
   test("test constructor", () => {
     // GIVEN
-    const line = 42;
+    const position = {line: 42, character: 0} as Position;
     const doc = {lineCount: 139} as TextDocument;
 
     // WHEN
-    const pydoc = new PythonDocument(doc, line);
+    const pydoc = new PythonDocument(doc, position);
 
     // THEN: Object construction succeeds
   });
@@ -17,7 +17,7 @@ suite("test PythonDocument lint functionality", () => {
   let _lines: string[];
   let doc: TextDocument;
 
-  setup(function() {
+  setup(() => {
     _lines = [
       "line 1",
       "line 2",
@@ -32,8 +32,8 @@ suite("test PythonDocument lint functionality", () => {
 
   test("test line()", () => {
     // GIVEN
-    const line = 1;
-    const pydoc = new PythonDocument(doc, line);
+    const position = {line: 1, character: 0} as Position;
+    const pydoc = new PythonDocument(doc, position);
 
     // WHEN
     const text = pydoc.line;
@@ -44,8 +44,8 @@ suite("test PythonDocument lint functionality", () => {
 
   test("test inc()", () => {
     // GIVEN
-    const line = 1;
-    const pydoc = new PythonDocument(doc, line);
+    const position = {line: 1, character: 0} as Position;
+    const pydoc = new PythonDocument(doc, position);
 
     // WHEN: Starting at 2nd-last line attempt two .inc()
     const text_0 = pydoc.line;
@@ -65,8 +65,8 @@ suite("test PythonDocument lint functionality", () => {
 
   test("test dec()", () => {
     // GIVEN
-    const line = 1;
-    const pydoc = new PythonDocument(doc, line);
+    const position = {line: 1, character: 0} as Position;
+    const pydoc = new PythonDocument(doc, position);
 
     // WHEN: Starting at 2nd-last line attempt two .inc()
     const text_0 = pydoc.line;

@@ -16,12 +16,18 @@ const logger = Logger.get('motion');
  */
 export class PythonDocument {
   _document: TextDocument;
-  _line: number
-  _last: number
+  _originalLine: number;
+  _originalCharacter: number;
+  _line: number;
+  _last: number;
 
-  constructor(document: TextDocument, line: number) {
+  constructor(document: TextDocument, position: Position) {
     this._document = document;
-    this._line = line;
+
+    this._originalLine = position.line;
+    this._originalCharacter = position.character;
+
+    this._line = this._originalLine;
     this._last = document.lineCount - 1;  // Position of last line in document
   }
 
