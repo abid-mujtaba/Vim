@@ -7,11 +7,48 @@ import { Position } from 'vscode';
 
 // TODO: Remove
 import { Logger } from '../../../util/logger';
+import { TextDocument } from 'vscode';
 const logger = Logger.get('motion');
 
-export function foo(): String {
-  return 'bar';
+/*
+ * Utility class used to parse the lines in the document and
+ * determine class and function boundaries
+ */
+export class PythonDocument {
+  _document: TextDocument;
+  _line: number
+  _last: number
+
+  constructor(document: TextDocument, line: number) {
+    this._document = document;
+    this._line = line;
+    this._last = document.lineCount - 1;  // Position of last line in document
+  }
+
+  get line(): string {
+    return this._document.lineAt(this._line).text;
+  }
+
+  dec(): boolean {
+    if (this._line > 0) {
+      this._line--;
+      return true;
+    }
+
+    return false;
+  }
+
+  inc(): boolean {
+    if (this._line < this._last) {
+      this._line++;
+      return true;
+    }
+
+    return false;
+  }
 }
+
+
 
 abstract class BasePythonMovement extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
