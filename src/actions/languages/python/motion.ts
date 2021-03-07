@@ -52,6 +52,10 @@ export class PythonDocument {
 
     return false;
   }
+
+  findNextFunctionStart(): Position | null {
+    return null;
+  }
 }
 
 

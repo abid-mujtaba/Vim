@@ -121,7 +121,8 @@ suite("Test PythonDocument find functionality", () => {
     const new_position = pydoc.findNextFunctionStart();
 
     // THEN
+    assert(new_position !== null);
     assert(new_position.line === 2);
-    assert(new_position.char === 0);
+    assert(new_position.character === 0);
   });
 });
