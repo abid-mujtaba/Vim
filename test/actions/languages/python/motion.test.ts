@@ -25,7 +25,7 @@ suite('test PythonDocument lint functionality', () => {
     // Create the simplest duck-type that matches PythonDocument's use of
     // the passed in PythonDocument object
     doc = {
-      lineCount: 3,
+      lineCount: _lines.length,
       lineAt: (line: number) => {
         return { text: _lines[line] };
       },
@@ -178,7 +178,7 @@ suite('PythonDocument._isFunctionLine', () => {
     _lines = ['    def foo():', '        pass'];
 
     doc = {
-      lineCount: 0,
+      lineCount: _lines.length,
       lineAt: (line: number) => {
         return { text: _lines[line] };
       },
@@ -211,7 +211,7 @@ suite('PythonDocument._isFunctionLine', () => {
   });
 });
 
-suite('PythonDocument find functionality', () => {
+suite('PythonDocument find function functionality', () => {
   let _lines: string[];
   let doc: TextDocument;
 
@@ -232,7 +232,7 @@ suite('PythonDocument find functionality', () => {
     ];
 
     doc = {
-      lineCount: 12,
+      lineCount: _lines.length,
       lineAt: (line: number) => {
         return { text: _lines[line] };
       },
@@ -274,6 +274,94 @@ suite('PythonDocument find functionality', () => {
 
     // WHEN
     const new_position = pydoc.findNextFunctionStart();
+
+    // THEN
+    assert(new_position === null);
+  });
+});
+
+suite('PythonDocument find class functionality', () => {
+  let _lines: string[];
+  let doc: TextDocument;
+
+  setup(() => {
+    _lines = [
+      "'''Module docstring.'''",
+      '',
+      'class First:',
+      '# a mis-placed comment',
+      '    def __init__(self):',
+      '        pass',
+      '',
+      'p = 42',
+      '',
+      'class Second:',
+      '',
+      '    def __init__(self):',
+      '        pass',
+      '',
+      '    class Inner:',
+      '        def __init__(self):',
+      '            pass',
+    ];
+
+    doc = {
+      lineCount: _lines.length,
+      lineAt: (line: number) => {
+        return { text: _lines[line] };
+      },
+    } as TextDocument;
+  });
+
+  test('valid findNextClassStart, start of file', () => {
+    // GIVEN
+    const position = { line: 0, character: 0 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextClassStart();
+
+    // THEN
+    assert(new_position !== null);
+    assert(new_position.line === 2);
+    assert(new_position.character === 0);
+  });
+
+  test('valid findNextClassStart, past first class', () => {
+    // GIVEN
+    const position = { line: 8, character: 2 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextClassStart();
+
+    // THEN
+    assert(new_position !== null);
+    assert(new_position.line === 9);
+    assert(new_position.character === 0);
+  });
+
+  test('valid findNextClassStart, past second outer class', () => {
+    // GIVEN
+    const position = { line: 9, character: 3 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextClassStart();
+
+    // THEN
+    assert(new_position !== null);
+    assert(new_position.line === 14);
+    assert(new_position.character === 4);
+  });
+
+  test('Invalid findNextClassStart, past last class', () => {
+    // GIVEN
+    const position = { line: 14, character: 6 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextClassStart();
 
     // THEN
     assert(new_position === null);

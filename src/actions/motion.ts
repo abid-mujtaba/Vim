@@ -22,7 +22,7 @@ import { SearchDirection } from '../state/searchState';
 import { StatusBar } from '../statusBar';
 import { clamp } from '../util/util';
 import { getCurrentParagraphBeginning, getCurrentParagraphEnd } from '../textobject/paragraph';
-import { execPythonSectionMotion } from './languages/python/motion';
+import { execPythonSectionMotion, PythonDocument } from './languages/python/motion';
 import { Position } from 'vscode';
 
 // TODO: Remove
@@ -1526,8 +1526,18 @@ abstract class MoveSectionBoundary extends BaseMovement {
   isJump = true;
 
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    switch (vimState.document.languageId) {
+    const document = vimState.document;
+
+    switch (document.languageId) {
       case 'python':
+        switch (this.forward) {
+          case true:
+            switch (this.start) {
+              case true:
+                return new PythonDocument(document, position).findNextClassStart() || position;
+            }
+        }
+
         return execPythonSectionMotion(this.forward, this.start, position, vimState);
     }
 

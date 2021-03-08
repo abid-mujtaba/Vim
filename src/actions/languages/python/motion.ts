@@ -80,12 +80,16 @@ export class PythonDocument {
     return this._isConstructLine(/(?<=\s*)def .+/);
   }
 
+  _isClassLine(): boolean {
+    return this._isConstructLine(/(?<=\s*)class .+/);
+  }
+
   /*
    * Find the next start of the specified construct.
    * The passed in isConstruct method (bound to the object) is used to determine if
    * a line contains the construct.
    */
-  _findNextConstructStart(isConstruct: (() => boolean)): Position | null {
+  _findNextConstructStart(isConstruct: () => boolean): Position | null {
     while (!(isConstruct() && this._isAhead())) {
       if (!this.inc()) {
         return null;
@@ -97,6 +101,10 @@ export class PythonDocument {
 
   findNextFunctionStart(): Position | null {
     return this._findNextConstructStart(this._isFunctionLine.bind(this));
+  }
+
+  findNextClassStart(): Position | null {
+    return this._findNextConstructStart(this._isClassLine.bind(this));
   }
 }
 
