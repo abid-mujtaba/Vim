@@ -1,15 +1,18 @@
 import * as assert from 'assert';
 import { Position, TextDocument } from 'vscode';
-import { execPythonSectionMotion, PythonDocument } from '../../../../src/actions/languages/python/motion';
+import {
+  execPythonSectionMotion,
+  PythonDocument,
+} from '../../../../src/actions/languages/python/motion';
 
-suite("test PythonDocument lint functionality", () => {
-  test("constructor", () => {
+suite('test PythonDocument lint functionality', () => {
+  test('constructor', () => {
     // GIVEN
-    const position = {line: 42, character: 0} as Position;
-    const doc = {lineCount: 139} as TextDocument;
+    const position = { line: 42, character: 0 } as Position;
+    const doc_ = { lineCount: 139 } as TextDocument;
 
     // WHEN
-    const pydoc = new PythonDocument(doc, position);
+    const pydoc = new PythonDocument(doc_, position);
 
     // THEN: Object construction succeeds
   });
@@ -18,66 +21,65 @@ suite("test PythonDocument lint functionality", () => {
   let doc: TextDocument;
 
   setup(() => {
-    _lines = [
-      "line 1",
-      "line 2",
-      "line 3"
-    ];
+    _lines = ['line 1', 'line 2', 'line 3'];
     // Create the simplest duck-type that matches PythonDocument's use of
     // the passed in PythonDocument object
-    doc = {lineCount: 3, lineAt: (line: number) => {
-      return {text: _lines[line]}}
+    doc = {
+      lineCount: 3,
+      lineAt: (line: number) => {
+        return { text: _lines[line] };
+      },
     } as TextDocument;
   });
 
-  test("line()", () => {
+  test('line()', () => {
     // GIVEN
-    const position = {line: 1, character: 0} as Position;
+    const position = { line: 1, character: 0 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN
     const text = pydoc.line;
 
     // THEN
-    assert(text === _lines[1])
-  })
+    assert(text === _lines[1]);
+  });
 
-  test("inc()", () => {
+  test('inc()', () => {
     // GIVEN
-    const position = {line: 1, character: 0} as Position;
+    const position = { line: 1, character: 0 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN: Starting at 2nd-last line attempt two .inc()
     const text_0 = pydoc.line;
-    const flag_1 = pydoc.inc()
+    const flag_1 = pydoc.inc();
     const text_1 = pydoc.line;
     const flag_2 = pydoc.inc();
     const text_2 = pydoc.line;
 
     // THEN: First inc() succeeds next fails because of EoF
     assert(flag_1);
-    assert(! flag_2);
+    assert(!flag_2);
 
     assert(text_0 === _lines[1]);
     assert(text_1 === _lines[2]);
     assert(text_2 === _lines[2]);
-  })
+  });
 
-  test("dec()", () => {
+  test('dec()', () => {
     // GIVEN
-    const position = {line: 1, character: 0} as Position;
+    const position = { line: 1, character: 0 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN: Starting at 2nd-last line attempt two .inc()
     const text_0 = pydoc.line;
-    const flag_1 = pydoc.dec()
+    const flag_1 = pydoc.dec();
     const text_1 = pydoc.line;
     const flag_2 = pydoc.dec();
     const text_2 = pydoc.line;
 
     // THEN: First inc() succeeds next fails because of EoF
     assert(flag_1);
-    assert(! flag_2);
+    assert(!flag_2);
 
     assert(text_0 === _lines[1]);
     assert(text_1 === _lines[0]);
@@ -85,110 +87,107 @@ suite("test PythonDocument lint functionality", () => {
   });
 });
 
-
-suite("PythonDocument._isAhead", () => {
-
+suite('PythonDocument._isAhead', () => {
   let doc: TextDocument;
 
   setup(() => {
-    doc = {lineCount: 0} as TextDocument;
+    doc = { lineCount: 0 } as TextDocument;
   });
 
-  test("_isAhead true when current line > original", () => {
+  test('_isAhead true when current line > original', () => {
     // GIVEN
-    const originalPosition = {line: 0, character: 0} as Position;
+    const originalPosition = { line: 0, character: 0 } as Position;
     const pydoc = new PythonDocument(doc, originalPosition);
 
-    pydoc._line = 1;  // > original line
+    pydoc._line = 1; // > original line
     pydoc._character = 0;
 
     // WHEN
-    const result = pydoc._isAhead()
+    const result = pydoc._isAhead();
 
     // THEN
     assert(result);
   });
 
-  test("_isAhead false when current line < original", () => {
+  test('_isAhead false when current line < original', () => {
     // GIVEN
-    const originalPosition = {line: 2, character: 0} as Position;
+    const originalPosition = { line: 2, character: 0 } as Position;
     const pydoc = new PythonDocument(doc, originalPosition);
 
-    pydoc._line = 1;  // < original line
+    pydoc._line = 1; // < original line
     pydoc._character = 0;
 
     // WHEN
-    const result = pydoc._isAhead()
+    const result = pydoc._isAhead();
 
     // THEN
-    assert(! result);
+    assert(!result);
   });
 
-  test("_isAhead true when current line == original and current char > original", () => {
+  test('_isAhead true when current line == original and current char > original', () => {
     // GIVEN
-    const originalPosition = {line: 0, character: 1} as Position;
+    const originalPosition = { line: 0, character: 1 } as Position;
     const pydoc = new PythonDocument(doc, originalPosition);
 
     pydoc._line = 0;
-    pydoc._character = 2;  // > original character
+    pydoc._character = 2; // > original character
 
     // WHEN
-    const result = pydoc._isAhead()
+    const result = pydoc._isAhead();
 
     // THEN
     assert(result);
   });
 
-  test("_isAhead false when current line == original and current char < original", () => {
+  test('_isAhead false when current line == original and current char < original', () => {
     // GIVEN
-    const originalPosition = {line: 0, character: 2} as Position;
+    const originalPosition = { line: 0, character: 2 } as Position;
     const pydoc = new PythonDocument(doc, originalPosition);
 
     pydoc._line = 0;
-    pydoc._character = 1;  // < original character
+    pydoc._character = 1; // < original character
 
     // WHEN
-    const result = pydoc._isAhead()
+    const result = pydoc._isAhead();
 
     // THEN
-    assert(! result);
+    assert(!result);
   });
 
-  test("_isAhead false when current line == original and current char == original", () => {
+  test('_isAhead false when current line == original and current char == original', () => {
     // GIVEN
-    const originalPosition = {line: 0, character: 2} as Position;
+    const originalPosition = { line: 0, character: 2 } as Position;
     const pydoc = new PythonDocument(doc, originalPosition);
 
     pydoc._line = 0;
-    pydoc._character = 2;  // == original character
+    pydoc._character = 2; // == original character
 
     // WHEN
-    const result = pydoc._isAhead()
+    const result = pydoc._isAhead();
 
     // THEN
-    assert(! result);
+    assert(!result);
   });
 });
 
-suite("PythonDocument._isFunctionLine", () => {
-
+suite('PythonDocument._isFunctionLine', () => {
   let _lines: string[];
   let doc: TextDocument;
 
   setup(() => {
-    _lines = [
-      "    def foo():",
-      "        pass"
-    ]
+    _lines = ['    def foo():', '        pass'];
 
-    doc = {lineCount: 0, lineAt: (line: number) => {
-      return {text: _lines[line]};
-    }} as TextDocument;
+    doc = {
+      lineCount: 0,
+      lineAt: (line: number) => {
+        return { text: _lines[line] };
+      },
+    } as TextDocument;
   });
 
-  test("_isFunctionLine true, ._character updated", () => {
+  test('_isFunctionLine true, ._character updated', () => {
     // GIVEN
-    const position = {line: 0, character: 7} as Position;
+    const position = { line: 0, character: 7 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN
@@ -196,51 +195,53 @@ suite("PythonDocument._isFunctionLine", () => {
 
     // THEN
     assert(result);
-    assert(pydoc._character == 4)
+    assert(pydoc._character === 4);
   });
 
-  test("_isFunctionLine false", () => {
+  test('_isFunctionLine false', () => {
     // GIVEN
-    const position = {line: 1, character: 7} as Position;
+    const position = { line: 1, character: 7 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN
     const result = pydoc._isFunctionLine();
 
     // THEN
-    assert(! result);
+    assert(!result);
   });
 });
 
-suite("PythonDocument find functionality", () => {
-
+suite('PythonDocument find functionality', () => {
   let _lines: string[];
   let doc: TextDocument;
 
   setup(() => {
     _lines = [
       "'''Module docstring.'''",
-      "",
-      "def first(x, y):",
-      "# a mis-placed comment",
-      "    pass",
-      "",
-      "p = 42",
-      "",
-      "def second(a, b):",
-      "",
-      "    def inner():",
-      "        pass"
+      '',
+      'def first(x, y):',
+      '# a mis-placed comment',
+      '    pass',
+      '',
+      'p = 42',
+      '',
+      'def second(a, b):',
+      '',
+      '    def inner():',
+      '        pass',
     ];
 
-    doc = {lineCount: 12, lineAt: (line: number) => {
-      return {text: _lines[line]}}
+    doc = {
+      lineCount: 12,
+      lineAt: (line: number) => {
+        return { text: _lines[line] };
+      },
     } as TextDocument;
   });
 
-  test("valid findNextFunctionStart, start of file", () => {
+  test('valid findNextFunctionStart, start of file', () => {
     // GIVEN
-    const position = {line: 0, character: 0} as Position;
+    const position = { line: 0, character: 0 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN
@@ -252,9 +253,9 @@ suite("PythonDocument find functionality", () => {
     assert(new_position.character === 0);
   });
 
-  test("valid findNextFunctionStart, past outer function", () => {
+  test('valid findNextFunctionStart, past outer function', () => {
     // GIVEN
-    const position = {line: 8, character: 2} as Position;
+    const position = { line: 8, character: 2 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN
@@ -266,9 +267,9 @@ suite("PythonDocument find functionality", () => {
     assert(new_position.character === 4);
   });
 
-  test("Invalid findNextFunctionStart, past last function", () => {
+  test('Invalid findNextFunctionStart, past last function', () => {
     // GIVEN
-    const position = {line: 10, character: 6} as Position;
+    const position = { line: 10, character: 6 } as Position;
     const pydoc = new PythonDocument(doc, position);
 
     // WHEN

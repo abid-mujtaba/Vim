@@ -25,10 +25,10 @@ export class PythonDocument {
   constructor(document: TextDocument, position: Position) {
     this._document = document;
 
-    this._line = this._originalLine =  position.line;
+    this._line = this._originalLine = position.line;
     this._character = this._originalCharacter = position.character;
 
-    this._last = document.lineCount - 1;  // Position of last line in document
+    this._last = document.lineCount - 1; // Position of last line in document
   }
 
   get line(): string {
@@ -54,11 +54,13 @@ export class PythonDocument {
   }
 
   _isAhead(): boolean {
-    if (this._line < this._originalLine)
+    if (this._line < this._originalLine) {
       return false;
+    }
 
-    if (this._line > this._originalLine)
+    if (this._line > this._originalLine) {
       return true;
+    }
 
     return this._character > this._originalCharacter;
   }
@@ -68,7 +70,7 @@ export class PythonDocument {
     const index = this.line.search(/(?<=\s*)def .+/);
 
     if (index >= 0) {
-      this._character = index;  // Move to start of function
+      this._character = index; // Move to start of function
       return true;
     }
 
@@ -76,8 +78,8 @@ export class PythonDocument {
   }
 
   findNextFunctionStart(): Position | null {
-    while(! (this._isFunctionLine() && this._isAhead())) {
-      if (! this.inc()) {
+    while (!(this._isFunctionLine() && this._isAhead())) {
+      if (!this.inc()) {
         return null;
       }
     }
@@ -85,8 +87,6 @@ export class PythonDocument {
     return new Position(this._line, this._character);
   }
 }
-
-
 
 abstract class BasePythonMovement extends BaseMovement {
   modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
@@ -138,9 +138,19 @@ abstract class PythonBackwardMovement extends BasePythonMovement {
 }
 
 @RegisterAction
-class MoveNextPythonMethodStart extends PythonForwardMovement {
+class MovePythonNextFunctionStart extends BaseMovement {
   keys = [']', 'm'];
-  pattern = /^\s*def /;
+
+  public async execAction(position: Position, vimState: VimState): Promise<Position> {
+    const document = vimState.document;
+    switch (document.languageId) {
+      case 'python':
+        return new PythonDocument(document, position).findNextFunctionStart() || position;
+
+      default:
+        return position;
+    }
+  }
 }
 
 @RegisterAction
