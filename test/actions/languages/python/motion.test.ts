@@ -177,8 +177,8 @@ suite("PythonDocument._isFunctionLine", () => {
 
   setup(() => {
     _lines = [
-      "def foo():",
-      "    pass"
+      "    def foo():",
+      "        pass"
     ]
 
     doc = {lineCount: 0, lineAt: (line: number) => {
@@ -186,7 +186,7 @@ suite("PythonDocument._isFunctionLine", () => {
     }} as TextDocument;
   });
 
-  test("_isFunctionLine true", () => {
+  test("_isFunctionLine true, ._character updated", () => {
     // GIVEN
     const position = {line: 0, character: 7} as Position;
     const pydoc = new PythonDocument(doc, position);
@@ -196,6 +196,7 @@ suite("PythonDocument._isFunctionLine", () => {
 
     // THEN
     assert(result);
+    assert(pydoc._character == 4)
   });
 
   test("_isFunctionLine false", () => {

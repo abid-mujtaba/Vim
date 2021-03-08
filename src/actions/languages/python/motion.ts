@@ -64,7 +64,14 @@ export class PythonDocument {
   }
 
   _isFunctionLine(): boolean {
-    return !! this.line.match(/\s*def .+/);
+    const index = this.line.search(/(?<=\s*)def .+/);
+
+    if (index >= 0) {
+      this._character = index;  // Move to start of function
+      return true;
+    }
+
+    return false;
   }
 
   findNextFunctionStart(): Position | null {
