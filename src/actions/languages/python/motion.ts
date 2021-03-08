@@ -65,26 +65,38 @@ export class PythonDocument {
     return this._character > this._originalCharacter;
   }
 
-  _isFunctionLine(): boolean {
-    // return !! this.line.match(/\s*def .+/);
-    const index = this.line.search(/(?<=\s*)def .+/);
+  _isConstructLine(pattern: RegExp): boolean {
+    const index = this.line.search(pattern);
 
     if (index >= 0) {
-      this._character = index; // Move to start of function
+      this._character = index; // Move to start of construct
       return true;
     }
 
     return false;
   }
 
-  findNextFunctionStart(): Position | null {
-    while (!(this._isFunctionLine() && this._isAhead())) {
+  _isFunctionLine(): boolean {
+    return this._isConstructLine(/(?<=\s*)def .+/);
+  }
+
+  /*
+   * Find the next start of the specified construct.
+   * The passed in isConstruct method (bound to the object) is used to determine if
+   * a line contains the construct.
+   */
+  _findNextConstructStart(isConstruct: (() => boolean)): Position | null {
+    while (!(isConstruct() && this._isAhead())) {
       if (!this.inc()) {
         return null;
       }
     }
 
     return new Position(this._line, this._character);
+  }
+
+  findNextFunctionStart(): Position | null {
+    return this._findNextConstructStart(this._isFunctionLine.bind(this));
   }
 }
 
