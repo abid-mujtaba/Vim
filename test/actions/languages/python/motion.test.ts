@@ -238,7 +238,7 @@ suite("PythonDocument find functionality", () => {
     } as TextDocument;
   });
 
-  test("valid findNextFunctionStart", () => {
+  test("valid findNextFunctionStart, start of file", () => {
     // GIVEN
     const position = {line: 0, character: 0} as Position;
     const pydoc = new PythonDocument(doc, position);
@@ -247,8 +247,34 @@ suite("PythonDocument find functionality", () => {
     const new_position = pydoc.findNextFunctionStart();
 
     // THEN
-    // assert(new_position !== null);
-    // assert(new_position.line === 2);
-    // assert(new_position.character === 0);
+    assert(new_position !== null);
+    assert(new_position.line === 2);
+    assert(new_position.character === 0);
+  });
+
+  test("valid findNextFunctionStart, past outer function", () => {
+    // GIVEN
+    const position = {line: 8, character: 2} as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextFunctionStart();
+
+    // THEN
+    assert(new_position !== null);
+    assert(new_position.line === 10);
+    assert(new_position.character === 4);
+  });
+
+  test("Invalid findNextFunctionStart, past last function", () => {
+    // GIVEN
+    const position = {line: 10, character: 6} as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findNextFunctionStart();
+
+    // THEN
+    assert(new_position === null);
   });
 });

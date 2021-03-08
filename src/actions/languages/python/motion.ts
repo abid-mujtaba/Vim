@@ -64,6 +64,7 @@ export class PythonDocument {
   }
 
   _isFunctionLine(): boolean {
+    // return !! this.line.match(/\s*def .+/);
     const index = this.line.search(/(?<=\s*)def .+/);
 
     if (index >= 0) {
@@ -75,13 +76,13 @@ export class PythonDocument {
   }
 
   findNextFunctionStart(): Position | null {
-    while(! this._isFunctionLine() && this._isAhead()) {
+    while(! (this._isFunctionLine() && this._isAhead())) {
       if (! this.inc()) {
         return null;
       }
     }
 
-    return TextEditor.getFirstNonWhitespaceCharOnLine(this._document, this._line);
+    return new Position(this._line, this._character);
   }
 }
 
