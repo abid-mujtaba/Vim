@@ -170,6 +170,46 @@ suite("PythonDocument._isAhead", () => {
   });
 });
 
+suite("PythonDocument._isFunctionLine", () => {
+
+  let _lines: string[];
+  let doc: TextDocument;
+
+  setup(() => {
+    _lines = [
+      "def foo():",
+      "    pass"
+    ]
+
+    doc = {lineCount: 0, lineAt: (line: number) => {
+      return {text: _lines[line]};
+    }} as TextDocument;
+  });
+
+  test("_isFunctionLine true", () => {
+    // GIVEN
+    const position = {line: 0, character: 7} as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const result = pydoc._isFunctionLine();
+
+    // THEN
+    assert(result);
+  });
+
+  test("_isFunctionLine false", () => {
+    // GIVEN
+    const position = {line: 1, character: 7} as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const result = pydoc._isFunctionLine();
+
+    // THEN
+    assert(! result);
+  });
+});
 
 suite("PythonDocument find functionality", () => {
 

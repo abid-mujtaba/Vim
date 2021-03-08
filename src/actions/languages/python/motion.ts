@@ -64,7 +64,7 @@ export class PythonDocument {
   }
 
   _isFunctionLine(): boolean {
-    return false;
+    return !! this.line.match(/\s*def .+/);
   }
 
   findNextFunctionStart(): Position | null {
