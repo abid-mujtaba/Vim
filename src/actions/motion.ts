@@ -1530,15 +1530,7 @@ abstract class MoveSectionBoundary extends BaseMovement {
 
     switch (document.languageId) {
       case 'python':
-        switch (this.forward) {
-          case true:
-            switch (this.start) {
-              case true:
-                return new PythonDocument(document, position).findNextClassStart() || position;
-            }
-        }
-
-        return execPythonSectionMotion(this.forward, this.start, position, vimState);
+        return PythonDocument.moveClassBoundary(document, position, this.forward, this.start);
     }
 
     const boundary = this.start ? '{' : '}';

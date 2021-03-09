@@ -53,6 +53,25 @@ export class PythonDocument {
     return false;
   }
 
+  // Use PythonDocument instance to move to specified class boundary
+  static moveClassBoundary(
+    document: TextDocument,
+    position: Position,
+    forward: boolean,
+    start: boolean
+  ): Position {
+    switch (start) {
+      case true:
+        switch (forward) {
+          case true:
+            return new this(document, position).findNextClassStart() || position;
+        }
+    }
+
+    // TODO: Remove default value when all cases have been specified
+    return position;
+  }
+
   _isAhead(): boolean {
     if (this._line < this._originalLine) {
       return false;
