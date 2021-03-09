@@ -22,7 +22,7 @@ import { SearchDirection } from '../state/searchState';
 import { StatusBar } from '../statusBar';
 import { clamp } from '../util/util';
 import { getCurrentParagraphBeginning, getCurrentParagraphEnd } from '../textobject/paragraph';
-import { execPythonSectionMotion, PythonDocument } from './languages/python/motion';
+import { PythonDocument } from './languages/python/motion';
 import { Position } from 'vscode';
 
 // TODO: Remove

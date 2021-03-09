@@ -159,120 +159,30 @@ export class PythonDocument {
   }
 }
 
+// Uses the specified findFunction to execute the motion coupled to the shortcut (keys)
 abstract class BasePythonMovement extends BaseMovement {
-  modes = [Mode.Normal, Mode.Visual, Mode.VisualLine];
-  abstract pattern: RegExp;
-  isJump = true;
-}
+  findFunction: string;
 
-abstract class PythonForwardMovement extends BasePythonMovement {
   public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    if (vimState.document.languageId !== 'python') {
-      return position;
-    }
+    const document = vimState.document;
+    switch (document.languageId) {
+      case 'python':
+        return new PythonDocument(document, position)[this.findFunction]() || position;
 
-    // TODO: Remove
-    logger.warn(`Cursor is on line ${position.line} and characer ${position.character}`);
-
-    let line = position.line;
-
-    do {
-      if (line === vimState.document.lineCount - 1) {
+      default:
         return position;
-      }
-
-      line++;
-    } while (!vimState.document.lineAt(line).text.match(this.pattern));
-
-    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
-  }
-}
-
-abstract class PythonBackwardMovement extends BasePythonMovement {
-  public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    if (vimState.document.languageId !== 'python') {
-      return position;
     }
-
-    let line = position.line;
-
-    do {
-      if (line === 0) {
-        return position;
-      }
-
-      line--;
-    } while (!vimState.document.lineAt(line).text.match(this.pattern));
-
-    return TextEditor.getFirstNonWhitespaceCharOnLine(vimState.document, line);
   }
 }
 
 @RegisterAction
-class MovePythonNextFunctionStart extends BaseMovement {
+class MovePythonNextFunctionStart extends BasePythonMovement {
   keys = [']', 'm'];
-
-  public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    const document = vimState.document;
-    switch (document.languageId) {
-      case 'python':
-        return new PythonDocument(document, position).findNextFunctionStart() || position;
-
-      default:
-        return position;
-    }
-  }
+  findFunction = 'findNextFunctionStart';
 }
 
 @RegisterAction
-class MovePrevPythonMethodStart extends BaseMovement {
+class MovePythonPrevFunctionStart extends BasePythonMovement {
   keys = ['[', 'm'];
-
-  public async execAction(position: Position, vimState: VimState): Promise<Position> {
-    const document = vimState.document;
-    switch (document.languageId) {
-      case 'python':
-        return new PythonDocument(document, position).findPrevFunctionStart() || position;
-
-      default:
-        return position;
-    }
-  }
-}
-
-export async function execPythonSectionMotion(
-  forward: boolean,
-  start: boolean,
-  position: Position,
-  vimState: VimState
-) {
-  if (forward) {
-    return execPythonSectionForwardAction(position, vimState);
-  } else {
-    return execPythonSectionBackwardAction(position, vimState);
-  }
-}
-
-async function execPythonSectionForwardAction(
-  position: Position,
-  vimState: VimState
-): Promise<Position> {
-  class MoveNextPythonClassStart extends PythonForwardMovement {
-    keys = [];
-    pattern = /^\s*class/;
-  }
-
-  return new MoveNextPythonClassStart().execAction(position, vimState);
-}
-
-async function execPythonSectionBackwardAction(
-  position: Position,
-  vimState: VimState
-): Promise<Position> {
-  class MovePrevPythonClassStart extends PythonBackwardMovement {
-    keys = [];
-    pattern = /^\s*class/;
-  }
-
-  return new MovePrevPythonClassStart().execAction(position, vimState);
+  findFunction = 'findPrevFunctionStart';
 }

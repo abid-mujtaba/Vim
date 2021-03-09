@@ -1,9 +1,6 @@
 import * as assert from 'assert';
 import { Position, TextDocument } from 'vscode';
-import {
-  execPythonSectionMotion,
-  PythonDocument,
-} from '../../../../src/actions/languages/python/motion';
+import { PythonDocument } from '../../../../src/actions/languages/python/motion';
 
 suite('test PythonDocument lint functionality', () => {
   test('constructor', () => {
