@@ -65,6 +65,8 @@ export class PythonDocument {
         switch (forward) {
           case true:
             return new this(document, position).findNextClassStart() || position;
+          case false:
+            return new this(document, position).findPrevClassStart() || position;
         }
     }
 
@@ -72,6 +74,7 @@ export class PythonDocument {
     return position;
   }
 
+  // Is the current position ahead of the original position
   _isAhead(): boolean {
     if (this._line < this._originalLine) {
       return false;
@@ -82,6 +85,17 @@ export class PythonDocument {
     }
 
     return this._character > this._originalCharacter;
+  }
+
+  // Is the current position behind the original position
+  // Because of the requirement that two equal positions NOT be considered
+  // ahead or behind this is NOT the boolean negation of _isAhead()
+  _isBehind(): boolean {
+    if (this._line === this._originalLine) {
+      return this._character < this._originalCharacter;
+    }
+
+    return !this._isAhead();
   }
 
   _isConstructLine(pattern: RegExp): boolean {
@@ -124,6 +138,24 @@ export class PythonDocument {
 
   findNextClassStart(): Position | null {
     return this._findNextConstructStart(this._isClassLine.bind(this));
+  }
+
+  _findPrevConstructStart(isConstruct: () => boolean): Position | null {
+    while (!(isConstruct() && this._isBehind())) {
+      if (!this.dec()) {
+        return null;
+      }
+    }
+
+    return new Position(this._line, this._character);
+  }
+
+  findPrevFunctionStart(): Position | null {
+    return this._findPrevConstructStart(this._isFunctionLine.bind(this));
+  }
+
+  findPrevClassStart(): Position | null {
+    return this._findPrevConstructStart(this._isClassLine.bind(this));
   }
 }
 
@@ -193,9 +225,19 @@ class MovePythonNextFunctionStart extends BaseMovement {
 }
 
 @RegisterAction
-class MovePrevPythonMethodStart extends PythonBackwardMovement {
+class MovePrevPythonMethodStart extends BaseMovement {
   keys = ['[', 'm'];
-  pattern = /^\s*def /;
+
+  public async execAction(position: Position, vimState: VimState): Promise<Position> {
+    const document = vimState.document;
+    switch (document.languageId) {
+      case 'python':
+        return new PythonDocument(document, position).findPrevFunctionStart() || position;
+
+      default:
+        return position;
+    }
+  }
 }
 
 export async function execPythonSectionMotion(

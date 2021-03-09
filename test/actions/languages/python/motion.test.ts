@@ -170,6 +170,89 @@ suite('PythonDocument._isAhead', () => {
   });
 });
 
+suite('PythonDocument._isBehind', () => {
+  let doc: TextDocument;
+
+  setup(() => {
+    doc = { lineCount: 0 } as TextDocument;
+  });
+
+  test('_isBehind is false when current line > original', () => {
+    // GIVEN
+    const originalPosition = { line: 0, character: 0 } as Position;
+    const pydoc = new PythonDocument(doc, originalPosition);
+
+    pydoc._line = 1; // > original line
+    pydoc._character = 0;
+
+    // WHEN
+    const result = pydoc._isBehind();
+
+    // THEN
+    assert(!result);
+  });
+
+  test('_isBehind is true when current line < original', () => {
+    // GIVEN
+    const originalPosition = { line: 2, character: 0 } as Position;
+    const pydoc = new PythonDocument(doc, originalPosition);
+
+    pydoc._line = 1; // < original line
+    pydoc._character = 0;
+
+    // WHEN
+    const result = pydoc._isBehind();
+
+    // THEN
+    assert(result);
+  });
+
+  test('_isBehind is false when current line == original and current char > original', () => {
+    // GIVEN
+    const originalPosition = { line: 0, character: 1 } as Position;
+    const pydoc = new PythonDocument(doc, originalPosition);
+
+    pydoc._line = 0;
+    pydoc._character = 2; // > original character
+
+    // WHEN
+    const result = pydoc._isBehind();
+
+    // THEN
+    assert(!result);
+  });
+
+  test('_isBehind is true when current line == original and current char < original', () => {
+    // GIVEN
+    const originalPosition = { line: 0, character: 2 } as Position;
+    const pydoc = new PythonDocument(doc, originalPosition);
+
+    pydoc._line = 0;
+    pydoc._character = 1; // < original character
+
+    // WHEN
+    const result = pydoc._isBehind();
+
+    // THEN
+    assert(result);
+  });
+
+  test('_isBehind is false when current line == original and current char == original', () => {
+    // GIVEN
+    const originalPosition = { line: 0, character: 2 } as Position;
+    const pydoc = new PythonDocument(doc, originalPosition);
+
+    pydoc._line = 0;
+    pydoc._character = 2; // == original character
+
+    // WHEN
+    const result = pydoc._isBehind();
+
+    // THEN
+    assert(!result);
+  });
+});
+
 suite('PythonDocument._isFunctionLine', () => {
   let _lines: string[];
   let doc: TextDocument;
@@ -274,6 +357,46 @@ suite('PythonDocument find function functionality', () => {
 
     // WHEN
     const new_position = pydoc.findNextFunctionStart();
+
+    // THEN
+    assert(new_position === null);
+  });
+
+  test('valid findPrevFunctionStart, middle of function', () => {
+    // GIVEN
+    const position = { line: 3, character: 8 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findPrevFunctionStart();
+
+    // THEN
+    assert(new_position !== null);
+    assert(new_position.line === 2);
+    assert(new_position.character === 0);
+  });
+
+  test('valid findPrevFunctionStart, start of inner function', () => {
+    // GIVEN
+    const position = { line: 10, character: 4 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findPrevFunctionStart();
+
+    // THEN
+    assert(new_position !== null);
+    assert(new_position.line === 8);
+    assert(new_position.character === 0);
+  });
+
+  test('invalid findPrevFunctionStart, above first function', () => {
+    // GIVEN
+    const position = { line: 0, character: 7 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findPrevFunctionStart();
 
     // THEN
     assert(new_position === null);
