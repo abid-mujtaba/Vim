@@ -250,6 +250,63 @@ suite('PythonDocument._isBehind', () => {
   });
 });
 
+suite('PythonDocument._textIndentation', () => {
+  test('indentation of line with none', () => {
+    // GIVEN
+    const line = "x = 42";
+
+    // WHEN
+    const indent = PythonDocument._textIndentation(line);
+
+    // THEN
+    assert(indent === 0);
+  });
+
+  test('indentation of line with 4 spaces', () => {
+    // GIVEN
+    const line = "    x = 42";
+
+    // WHEN
+    const indent = PythonDocument._textIndentation(line);
+
+    // THEN
+    assert(indent === 4);
+  });
+
+  test('indentation of line starting with a comment', () => {
+    // GIVEN
+    const line = "    # x = 42";
+
+    // WHEN
+    const indent = PythonDocument._textIndentation(line);
+
+    // THEN
+    assert(indent === null);
+  });
+
+  test('indentation of line containing only whitespace', () => {
+    // GIVEN
+    const line = "    ";
+
+    // WHEN
+    const indent = PythonDocument._textIndentation(line);
+
+    // THEN
+    assert(indent === null);
+  })
+
+  test('indentation of empty line', () => {
+    // GIVEN
+    const line = "";
+
+    // WHEN
+    const indent = PythonDocument._textIndentation(line);
+
+    // THEN
+    assert(indent === null);
+  })
+});
+
 suite('PythonDocument._isFunctionLine', () => {
   let _lines: string[];
   let doc: TextDocument;

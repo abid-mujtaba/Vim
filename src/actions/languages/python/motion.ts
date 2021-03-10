@@ -157,6 +157,21 @@ export class PythonDocument {
   findPrevClassStart(): Position | null {
     return this._findPrevConstructStart(this._isClassLine.bind(this));
   }
+
+  static _textIndentation(line: string): number | null {
+    const index: number = line.search(/\S/);
+
+    // Return null if line is empty, just whitespace, or starts with a comment
+    if (index === -1 || line[index] === '#') {
+      return null;
+    }
+
+    return index;
+  }
+
+  findCurrentFunctionStart(): Position | null {
+    return null;
+  }
 }
 
 // Uses the specified findFunction to execute the motion coupled to the shortcut (keys)
