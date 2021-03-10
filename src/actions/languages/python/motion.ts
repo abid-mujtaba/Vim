@@ -32,7 +32,11 @@ export class PythonDocument {
   }
 
   get line(): string {
-    return this._document.lineAt(this._line).text;
+    return this.lineAt(this._line);
+  }
+
+  lineAt(line_number: number): string {
+    return this._document.lineAt(line_number).text;
   }
 
   dec(): boolean {
@@ -167,6 +171,18 @@ export class PythonDocument {
     }
 
     return index;
+  }
+
+  indentation(): number {
+    let line_number: number = this._line;
+    let _indentation: number | null;
+
+    do {
+      _indentation = PythonDocument._textIndentation(this.lineAt(line_number));
+
+    } while(! _indentation && line_number-- >= 0);  // Find indentation or top of file
+
+    return _indentation || 0;
   }
 
   findCurrentFunctionStart(): Position | null {

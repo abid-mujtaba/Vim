@@ -307,6 +307,76 @@ suite('PythonDocument._textIndentation', () => {
   })
 });
 
+suite('PythonDocument.indentation', () => {
+  let _lines: string[];
+  let doc: TextDocument;
+
+  setup(() => {
+    _lines = [
+      '    def foo():',
+      '',
+      '# comment starting at start of line',
+      '        ',
+      '        pass'
+    ]
+
+    doc = {
+      lineCount: _lines.length,
+      lineAt: (line: number) => {
+        return { text: _lines[line] };
+      }
+    } as TextDocument;
+  });
+
+  test('line with indented code', () => {
+    // GIVEN: Line of code with indentation
+    const position = { line: 4, character: 0 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const indentation = pydoc.indentation();
+
+    // THEN
+    assert(indentation === 8);
+  });
+
+  test('empty line inside indented function', () => {
+    // GIVEN: Line of code with indentation
+    const position = { line: 1, character: 0 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const indentation = pydoc.indentation();
+
+    // THEN
+    assert(indentation === 4);
+  });
+
+  test('line starting with comment', () => {
+    // GIVEN: Line of code with indentation
+    const position = { line: 2, character: 8 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const indentation = pydoc.indentation();
+
+    // THEN
+    assert(indentation === 4);
+  });
+
+  test('line with only whitespace inside indented function', () => {
+    // GIVEN: Line of code with indentation
+    const position = { line: 3, character: 0 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const indentation = pydoc.indentation();
+
+    // THEN
+    assert(indentation === 4);
+  });
+});
+
 suite('PythonDocument._isFunctionLine', () => {
   let _lines: string[];
   let doc: TextDocument;
