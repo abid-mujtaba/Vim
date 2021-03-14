@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import { strict as assert } from 'assert';
 import { Position, TextDocument } from 'vscode';
 import { PythonDocument } from '../../../../src/actions/languages/python/motion';
 
@@ -38,7 +38,7 @@ suite('test PythonDocument lint functionality', () => {
     const text = pydoc.line;
 
     // THEN
-    assert(text === _lines[1]);
+    assert.equal(text, _lines[1]);
   });
 
   test('inc()', () => {
@@ -57,9 +57,9 @@ suite('test PythonDocument lint functionality', () => {
     assert(flag_1);
     assert(!flag_2);
 
-    assert(text_0 === _lines[1]);
-    assert(text_1 === _lines[2]);
-    assert(text_2 === _lines[2]);
+    assert.equal(text_0, _lines[1]);
+    assert.equal(text_1, _lines[2]);
+    assert.equal(text_2, _lines[2]);
   });
 
   test('dec()', () => {
@@ -78,9 +78,9 @@ suite('test PythonDocument lint functionality', () => {
     assert(flag_1);
     assert(!flag_2);
 
-    assert(text_0 === _lines[1]);
-    assert(text_1 === _lines[0]);
-    assert(text_2 === _lines[0]);
+    assert.equal(text_0, _lines[1]);
+    assert.equal(text_1, _lines[0]);
+    assert.equal(text_2, _lines[0]);
   });
 });
 
@@ -259,7 +259,7 @@ suite('PythonDocument._textIndentation', () => {
     const indent = PythonDocument._textIndentation(line);
 
     // THEN
-    assert(indent === 0);
+    assert.equal(indent, 0);
   });
 
   test('indentation of line with 4 spaces', () => {
@@ -270,7 +270,7 @@ suite('PythonDocument._textIndentation', () => {
     const indent = PythonDocument._textIndentation(line);
 
     // THEN
-    assert(indent === 4);
+    assert.equal(indent, 4);
   });
 
   test('indentation of line starting with a comment', () => {
@@ -281,7 +281,7 @@ suite('PythonDocument._textIndentation', () => {
     const indent = PythonDocument._textIndentation(line);
 
     // THEN
-    assert(indent === null);
+    assert.equal(indent, null);
   });
 
   test('indentation of line containing only whitespace', () => {
@@ -292,7 +292,7 @@ suite('PythonDocument._textIndentation', () => {
     const indent = PythonDocument._textIndentation(line);
 
     // THEN
-    assert(indent === null);
+    assert.equal(indent, null);
   })
 
   test('indentation of empty line', () => {
@@ -303,7 +303,7 @@ suite('PythonDocument._textIndentation', () => {
     const indent = PythonDocument._textIndentation(line);
 
     // THEN
-    assert(indent === null);
+    assert.equal(indent, null);
   })
 });
 
@@ -339,7 +339,7 @@ suite('PythonDocument.indentation', () => {
     const indentation = pydoc.indentation();
 
     // THEN
-    assert(indentation === 8);
+    assert.equal(indentation, 8);
   });
 
   test('empty line inside indented function', () => {
@@ -351,7 +351,7 @@ suite('PythonDocument.indentation', () => {
     const indentation = pydoc.indentation();
 
     // THEN
-    assert(indentation === 4);
+    assert.equal(indentation, 4);
   });
 
   test('line starting with comment', () => {
@@ -363,7 +363,7 @@ suite('PythonDocument.indentation', () => {
     const indentation = pydoc.indentation();
 
     // THEN
-    assert(indentation === 4);
+    assert.equal(indentation, 4);
   });
 
   test('line with only whitespace inside indented function', () => {
@@ -375,7 +375,7 @@ suite('PythonDocument.indentation', () => {
     const indentation = pydoc.indentation();
 
     // THEN
-    assert(indentation === 4);
+    assert.equal(indentation, 4);
   });
 
   test('line with valid code without indentation', () => {
@@ -387,7 +387,7 @@ suite('PythonDocument.indentation', () => {
     const indentation = pydoc.indentation();
 
     // THEN
-    assert(indentation === 0);
+    assert.equal(indentation, 0);
   });
 });
 
@@ -416,7 +416,7 @@ suite('PythonDocument._isFunctionLine', () => {
 
     // THEN
     assert(result);
-    assert(pydoc._character === 4);
+    assert.equal(pydoc._character, 4);
   });
 
   test('_isFunctionLine false', () => {
@@ -469,9 +469,10 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findNextFunctionStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 2);
-    assert(new_position.character === 0);
+    assert.equal(new_position.line, 2);
+    assert.equal(new_position.character, 0);
   });
 
   test('valid findNextFunctionStart, past outer function', () => {
@@ -483,9 +484,10 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findNextFunctionStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 10);
-    assert(new_position.character === 4);
+    assert.equal(new_position.line, 10);
+    assert.equal(new_position.character, 4);
   });
 
   test('Invalid findNextFunctionStart, past last function', () => {
@@ -497,7 +499,7 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findNextFunctionStart();
 
     // THEN
-    assert(new_position === null);
+    assert.equal(new_position, null);
   });
 
   test('valid findPrevFunctionStart, middle of function', () => {
@@ -509,9 +511,10 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findPrevFunctionStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 2);
-    assert(new_position.character === 0);
+    assert.equal(new_position.line, 2);
+    assert.equal(new_position.character, 0);
   });
 
   test('valid findPrevFunctionStart, start of inner function', () => {
@@ -523,9 +526,10 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findPrevFunctionStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 8);
-    assert(new_position.character === 0);
+    assert.equal(new_position.line, 8);
+    assert.equal(new_position.character, 0);
   });
 
   test('invalid findPrevFunctionStart, above first function', () => {
@@ -537,7 +541,7 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findPrevFunctionStart();
 
     // THEN
-    assert(new_position === null);
+    assert.equal(new_position, null);
   });
 
   test('valid findCurrentFunctionStart, inside first function', () => {
@@ -549,9 +553,10 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findCurrentFunctionStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null)
-    assert(new_position.line === 2);
-    assert(new_position.character === 0);
+    assert.equal(new_position.line, 2);
+    assert.equal(new_position.character, 0);
   });
 
   test('valid findCurrentFunctionStart, inside inner function', () => {
@@ -563,9 +568,10 @@ suite('PythonDocument find function functionality', () => {
     const new_position = pydoc.findCurrentFunctionStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null)
-    assert(new_position.line === 10);
-    assert(new_position.character === 4);
+    assert.equal(new_position.line, 10);
+    assert.equal(new_position.character, 4);
   });
 
   test('invalid findCurrentFunctionStart, outside any function', () => {
@@ -623,9 +629,10 @@ suite('PythonDocument find class functionality', () => {
     const new_position = pydoc.findNextClassStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 2);
-    assert(new_position.character === 0);
+    assert.equal(new_position.line, 2);
+    assert.equal(new_position.character, 0);
   });
 
   test('valid findNextClassStart, past first class', () => {
@@ -637,9 +644,10 @@ suite('PythonDocument find class functionality', () => {
     const new_position = pydoc.findNextClassStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 9);
-    assert(new_position.character === 0);
+    assert.equal(new_position.line, 9);
+    assert.equal(new_position.character, 0);
   });
 
   test('valid findNextClassStart, past second outer class', () => {
@@ -651,9 +659,10 @@ suite('PythonDocument find class functionality', () => {
     const new_position = pydoc.findNextClassStart();
 
     // THEN
+    assert.notEqual(new_position, null);
     assert(new_position !== null);
-    assert(new_position.line === 14);
-    assert(new_position.character === 4);
+    assert.equal(new_position.line, 14);
+    assert.equal(new_position.character, 4);
   });
 
   test('Invalid findNextClassStart, past last class', () => {
@@ -665,6 +674,6 @@ suite('PythonDocument find class functionality', () => {
     const new_position = pydoc.findNextClassStart();
 
     // THEN
-    assert(new_position === null);
+    assert.equal(new_position, null);
   });
 });
