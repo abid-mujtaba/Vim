@@ -317,7 +317,9 @@ suite('PythonDocument.indentation', () => {
       '',
       '# comment starting at start of line',
       '        ',
-      '        pass'
+      '        pass',
+      '',
+      'x = 42'
     ]
 
     doc = {
@@ -374,6 +376,18 @@ suite('PythonDocument.indentation', () => {
 
     // THEN
     assert(indentation === 4);
+  });
+
+  test('line with valid code without indentation', () => {
+    // GIVEN:
+    const position = { line: 6, character: 3 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const indentation = pydoc.indentation();
+
+    // THEN
+    assert(indentation === 0);
   });
 });
 

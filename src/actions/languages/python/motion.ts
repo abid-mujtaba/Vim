@@ -180,7 +180,7 @@ export class PythonDocument {
     do {
       _indentation = PythonDocument._textIndentation(this.lineAt(line_number));
 
-    } while(! _indentation && line_number-- >= 0);  // Find indentation or top of file
+    } while(_indentation === null && line_number-- >= 0);  // Find indentation or top of file
 
     return _indentation || 0;
   }
