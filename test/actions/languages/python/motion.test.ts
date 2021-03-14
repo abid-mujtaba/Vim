@@ -539,6 +539,46 @@ suite('PythonDocument find function functionality', () => {
     // THEN
     assert(new_position === null);
   });
+
+  test('valid findCurrentFunctionStart, inside first function', () => {
+    // GIVEN
+    const position = { line: 4, character: 4 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findCurrentFunctionStart();
+
+    // THEN
+    assert(new_position !== null)
+    assert(new_position.line === 2);
+    assert(new_position.character === 0);
+  });
+
+  test('valid findCurrentFunctionStart, inside inner function', () => {
+    // GIVEN
+    const position = { line: 11, character: 6 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findCurrentFunctionStart();
+
+    // THEN
+    assert(new_position !== null)
+    assert(new_position.line === 10);
+    assert(new_position.character === 4);
+  });
+
+  test('invalid findCurrentFunctionStart, outside any function', () => {
+    // GIVEN
+    const position = { line: 6, character: 3 } as Position;
+    const pydoc = new PythonDocument(doc, position);
+
+    // WHEN
+    const new_position = pydoc.findCurrentFunctionStart();
+
+    // THEN
+    assert.strictEqual(new_position, null);
+  });
 });
 
 suite('PythonDocument find class functionality', () => {

@@ -186,6 +186,16 @@ export class PythonDocument {
   }
 
   findCurrentFunctionStart(): Position | null {
+    const current_indentation = this.indentation();
+
+    do {
+      if (this._isFunctionLine()) {
+        if (current_indentation > this._character) {
+          return { line: this._line, character: this._character } as Position;
+        }
+      }
+    } while (this.dec());
+
     return null;
   }
 }
